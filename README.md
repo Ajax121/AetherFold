@@ -2,29 +2,62 @@
 
 **Shape the light. Let it sing.**
 
-AetherFold is an interactive visual instrument that turns images into
-kaleidoscopic patterns. Move your pointer or hand to warp psychedelic 3D geometry
-and shape ambient, microtonal chords through the same gesture.
+AetherFold is an interactive visual instrument for turning images into clear,
+continuous kaleidoscopic compositions. One gesture bends a responsive 3D field
+and performs ambient, microtonal sound at the same time.
+
+**[Open the live app →](https://ajax121.github.io/AetherFold/)**
+
+It runs entirely in the browser: image processing, WebGL2 rendering, and Web
+Audio synthesis stay on the visitor's device. No account or server-side upload
+is required.
 
 ![AetherFold desktop interface with a radial image composition, source preview, and live controls](artifacts/aetherfold-desktop.png)
 
 *Desktop experience: a single source image reflected into a continuous radial
 motif, with its connection anchor and composition controls visible.*
 
-## What you can do
+## Highlights
 
-- **Compose with images.** Upload a photo or choose a sample, then adjust its
-  anchor, crop scale, and layout rotation to choose where reflections meet.
-- **Explore five symmetry layouts.** Connected mirror, square lattice, diamond
-  lattice, triangle prism, and radial flower.
-- **Bend the geometry.** Blend the image into a raymarched gyroid and control
-  deformation through pointer movement, touch, or optional hand tracking.
-- **Play ambient harmonies.** Explore pentatonic, just-intonation, and microtonal
-  tunings with gesture-controlled pitch, filtering, stereo position, and effects.
-- **Shape the experience.** Change atmosphere presets, fold count, warp strength,
-  render quality, and volume from the live controls.
-- **Save a composition.** Export and restore scene JSON containing the settings
-  and original source image.
+- **Image-led composition.** Upload an image or pick a bundled study. Automatic
+  focal analysis proposes an anchor; you can place it precisely, then tune crop,
+  rotation, and optional background removal. At Geometry morph `0`, source
+  colours remain unaltered.
+- **Five seamless symmetry modes.** Connected mirror, square lattice, diamond
+  lattice, triangle prism, and radial flower share image coordinates at their
+  reflection seams. A seam overlay makes joins easy to inspect.
+- **Real-time spatial visuals.** Blend the image into a raymarched gyroid field.
+  Pointer energy and pinch bring in parallax, depth, and glow, while an idle
+  composition stays legible. Light, Balanced, and Fine detail quality tiers keep
+  performance practical on a range of devices.
+- **Gesture-controlled sound.** A single pointer, touch, or optional hand-tracked
+  gesture controls spatial deformation and a polyphonic Web Audio instrument.
+  Choose pentatonic, just-intonation, or microtonal harmonies; position shapes
+  register, filter, and stereo field, while movement and pinch shape articulation
+  and space.
+- **Performance controls.** Switch atmosphere presets, folds, geometry amount,
+  warp, image coverage, quality, volume, pause/resume, mute, and fullscreen.
+  The interface reports live FPS.
+- **Portable scenes.** Save a composition as JSON with its source image embedded,
+  then load it later on another device. The current scene is also remembered
+  locally in the browser when storage is available.
+
+## Start playing
+
+1. Open the **[live app](https://ajax121.github.io/AetherFold/)** in a current
+   desktop or mobile browser with WebGL2.
+2. Choose **Enter with sound** to start the audio engine from a user gesture, or
+   **Explore silently** to begin with visuals only.
+3. Move over the stage; drag with a pointer or squeeze with two touch points to
+   deepen the spatial field.
+4. Upload an image or select a sample. In the source preview, drag the anchor to
+   choose the point where reflections meet, then adjust Crop scale and Layout
+   rotation.
+5. Set Geometry morph to `0` to inspect the pure image composition. Raise it to
+   introduce the responsive 3D field, then choose an atmosphere and tuning.
+
+Sound and camera access are always opt-in. Uploaded images are decoded and
+processed in the browser; they are not sent to an AetherFold server.
 
 ## Mobile preview
 
@@ -35,6 +68,38 @@ motif, with its connection anchor and composition controls visible.*
 *Touch controls and a collapsible panel keep the artwork and source editor
 accessible on smaller screens.*
 
+## Controls
+
+| Interaction | Effect |
+| --- | --- |
+| Move across the stage | Steer visual warp, pitch/register, filter, and stereo position |
+| Hold and drag / squeeze two touch points | Increase pinch deformation and spatial effects |
+| Drag in the source preview | Place the image connection anchor |
+| Scroll over the source preview | Adjust crop scale |
+| `Space` | Pause or resume motion |
+| `↑` / `↓` | Change fold count in lattice and radial modes |
+| `M` | Enable or mute sound |
+| `R` | Restore the default scene |
+
+Stage shortcuts apply only when an editor or form control is not focused. The
+source preview also supports arrow keys to move its anchor and `+` / `-` to
+change crop scale. Connected mirror uses fixed axes, so its fold count is not
+adjustable.
+
+## Requirements and privacy
+
+- A current browser with **WebGL2** is required for the full renderer. The app
+  displays a clear status message and uses a simpler mirror fallback when the
+  full shader cannot compile.
+- Web Audio must be started from a click or tap, as required by browsers. You
+  can always use the visual instrument silently.
+- Hand tracking is optional. It requests the camera only after you select
+  **Enable hand tracking**, runs inference locally, and returns to pointer mode
+  if a camera or model is unavailable. HTTPS is required for camera use outside
+  localhost.
+- Sample images ship with the app. Your own images and saved scene files stay
+  local unless you independently share them.
+
 ## Run locally
 
 Use Python 3.11 or newer and a browser with WebGL2 support:
@@ -43,9 +108,8 @@ Use Python 3.11 or newer and a browser with WebGL2 support:
 python3 main.py
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000), then choose **Enter with
-sound** or **Explore silently**. The browser app needs no npm installation,
-Python packages, or build step for local use.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000). The browser app needs no
+npm installation, Python packages, or build step for local use.
 
 The initial composition uses **Vision Study 02** with the **Velvet Void**
 atmosphere, triangle symmetry, four folds, a 45° layout rotation, high render
@@ -102,40 +166,6 @@ Building an image does not publish it or deploy the app.
 The sample-image requirement in [Build a static site](#build-a-static-site)
 also applies to Docker builds from a fresh clone.
 
-## Try your first composition
-
-1. Upload an image or select a sample in **Image & connection**.
-2. Pick a feature in the source preview. Drag the anchor to choose the point
-   where reflections meet, and adjust **Crop scale** to bring detail into the join.
-3. Compare symmetry layouts with **Geometry morph** at zero to see the image's
-   original colours without the 3D field.
-4. Raise **Geometry morph**, then move and drag across the artwork to bend it.
-5. Enable sound and choose a tuning. Move vertically to explore registers and
-   horizontally to shape filtering and stereo position.
-6. Use **Save scene** to keep the source image and settings together.
-
-Automatic anchor selection uses image detail and background contrast. Manual
-placement helps with subjects it cannot identify. Background removal works best
-with simple, consistent backgrounds.
-
-## Controls
-
-| Interaction | Effect |
-| --- | --- |
-| Move across the artwork | Shape geometry and sound |
-| Hold and drag / squeeze two touch points | Increase pinch deformation |
-| Drag in the source preview | Move the mirror anchor |
-| Scroll over the source preview | Adjust crop scale |
-| `Space` | Pause or resume motion |
-| `↑` / `↓` | Change fold count in lattice and radial layouts |
-| `M` | Enable or mute sound |
-| `R` | Reset the scene |
-
-Stage shortcuts apply when an editor or form control is not focused. In the
-source preview, arrow keys move the anchor and `+` / `-` adjust crop scale.
-Camera mode uses palm position and thumb/index pinch, with pointer fallback when
-tracking is unavailable.
-
 ## How it works
 
 One shared interaction state carries position, movement energy, pinch, and depth
@@ -152,6 +182,10 @@ same controls from a webcam.
 | Live interface and integration | [index.html](web/index.html), [styles.css](web/styles.css), [app.js](web/app.js) |
 | Presets and scene validation | [state.js](web/state.js) |
 
+The renderer handles context loss and restoration, caps render allocation, and
+keeps the animation loop at a 60 FPS target. Exact frame rate depends on the
+device, image size, browser, and selected quality tier.
+
 ## Build a static site
 
 With Node.js installed:
@@ -167,6 +201,14 @@ as a static site. Asset paths support hosting under a subdirectory.
 The build expects every sample referenced in `web/state.js` to be committed.
 Local scratch images can stay under `images/test_img/`; that folder is ignored
 and is not part of the public build.
+
+## Publish with GitHub Pages
+
+Push to `main` to run the included
+[GitHub Pages workflow](.github/workflows/pages.yml). It runs the Node test
+suite, builds the static bundle, and deploys it over HTTPS to
+[ajax121.github.io/AetherFold](https://ajax121.github.io/AetherFold/). This is
+the production path for the live app; no server process is needed.
 
 ## Development checks
 
@@ -187,4 +229,13 @@ The earlier Python rendering experiment is still available separately:
 ```bash
 uv run python test_fold.py images
 ```
+
+## Current limits
+
+- The app exports and imports scenes, not rendered PNGs, videos, or loops yet.
+- Image-anchor analysis is a helpful starting point, not semantic subject
+  recognition; placing the join manually produces the best compositions.
+- Hand tracking and musical feel benefit from testing on real camera and audio
+  hardware. The automated suite validates safe startup, fallbacks, and browser
+  integration, but cannot judge every device's latency or artistic output.
 
