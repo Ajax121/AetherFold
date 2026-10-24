@@ -207,7 +207,10 @@ body:has(#launch-overlay:not([hidden])) > #stage { visibility: hidden; }
   .button-icon { width: 40px; min-height: 40px; }
   .topbar .button-quiet { padding: 10px; font-size: 10px; }
   .workspace { inset: 86px max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
-  .instrument-panel { width: 100%; top: auto; bottom: 0; max-height: 49vh; max-height: 49dvh; border-radius: 14px; }
+  /* Backdrop blur above a continuously raymarched canvas is expensive on
+     mobile GPUs. An opaque sheet keeps the controls readable without stealing
+     frame time from the live artwork. */
+  .instrument-panel { width: 100%; top: auto; bottom: 0; max-height: 49vh; max-height: 49dvh; border-radius: 14px; background: rgba(20,21,25,.97); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .panel-heading { padding: 13px 18px; }
   .panel-heading > span:first-child { flex-direction: row; align-items: center; gap: 12px; }
   .panel-title { font-size: 19px; }

@@ -6,6 +6,17 @@ export const QUALITY_PRESETS = Object.freeze({
   high: Object.freeze({ renderScale: 1, steps: 144, dprLimit: 2, maxWidth: 2560 }),
 });
 
+// A phone has a much smaller physical screen but is often reported at a 2–3x
+// DPR. Running the desktop "high" tier at that density means raymarching well
+// over a million pixels every frame, while a blurred bottom sheet is being
+// composited above it. These limits retain a crisp canvas (roughly 1.25–1.4x
+// CSS resolution) but keep the field responsive to touch.
+export const MOBILE_QUALITY_PRESETS = Object.freeze({
+  low: Object.freeze({ renderScale: 0.65, steps: 40, dprLimit: 1, maxWidth: 720 }),
+  balanced: Object.freeze({ renderScale: 0.85, steps: 64, dprLimit: 1.2, maxWidth: 960 }),
+  high: Object.freeze({ renderScale: 1, steps: 96, dprLimit: 1.35, maxWidth: 1280 }),
+});
+
 const PATTERNS = Object.freeze({ mirror: 0, square: 1, diamond: 2, triangle: 3, radial: 4 });
 const BACKGROUNDS = Object.freeze({
   cyber: [0.018, 0.025, 0.045], golden: [0.035, 0.022, 0.01], void: [0.005, 0.006, 0.012],
@@ -19,6 +30,15 @@ const UNIFORMS = [
 const bounded = (value, fallback, lo, hi) => Number.isFinite(value)
   ? Math.min(hi, Math.max(lo, value)) : fallback;
 const rgb = (value, fallback) => [0, 1, 2].map(i => bounded(value?.[i], fallback[i], 0, 1));
+
+/** Use the selected quality name everywhere, with a phone-safe GPU budget. */
+export function resolveQuality(name, width, { coarsePointer = false } = {}) {
+  const preset = Object.hasOwn(QUALITY_PRESETS, name) ? name : 'balanced';
+  // Width intentionally decides this rather than UA sniffing: a narrow desktop
+  // window should remain detailed, and a large tablet can use the desktop tier.
+  return coarsePointer && Number.isFinite(width) && width <= 680
+    ? MOBILE_QUALITY_PRESETS[preset] : QUALITY_PRESETS[preset];
+}
 
 function compileShader(gl, kind, source) {
   const shader = gl.createShader(kind);
@@ -249,7 +269,9 @@ export class Renderer {
 
   render({ time = 0, dt = 0, scene = {}, interaction = {} } = {}) {
     if (this.disposed || !this.ready || this.contextLost || this.gl.isContextLost()) return;
-    const quality = QUALITY_PRESETS[scene.quality] || QUALITY_PRESETS.balanced;
+    const bounds = this.canvas.getBoundingClientRect();
+    const coarsePointer = Boolean(globalThis.matchMedia?.('(pointer: coarse)')?.matches);
+    const quality = resolveQuality(scene.quality, bounds.width, { coarsePointer });
     try {
       if (!this._resize(quality)) return;
       if (!scene.paused) this._time = bounded(time, this._time + bounded(dt, 0, 0, 0.1), 0, 1e9);
