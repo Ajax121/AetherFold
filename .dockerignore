@@ -1,0 +1,24 @@
+# Only files needed to build the browser site enter the Docker context.
+**
+!Dockerfile
+!.dockerignore
+!package.json
+!scripts/
+scripts/**
+!scripts/build-static.mjs
+!web/
+web/**
+!web/*.html
+!web/*.css
+!web/*.js
+!images/
+images/**
+!images/*.png
+!images/*.jpg
+!images/*.jpeg
+!images/test_img/
+images/test_img/**
+!images/test_img/*.jpeg
+!docker/
+docker/**
+!docker/nginx.conf

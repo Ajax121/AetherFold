@@ -1,0 +1,10 @@
+{
+  "name": "aetherfold",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-static.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser-smoke.mjs"
+  }
+}

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#101113">
+    <meta name="description" content="An intimate visual instrument. Fold an image, bend a world, and play ambient harmonies with a gesture.">
+    <title>AetherFold — Shape the light</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <canvas id="stage" class="stage" tabindex="0" aria-label="Interactive visual stage" aria-describedby="stage-hint">
+      Your browser needs canvas and WebGL2 to display this visual instrument.
+    </canvas>
+
+    <div class="app-chrome">
+      <header class="topbar">
+        <a class="wordmark" href="#stage" aria-label="AetherFold, focus the visual stage">
+          <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <path d="m18 2 5 11 11 5-11 5-5 11-5-11L2 18l11-5Z"/>
+            <path d="m18 9 9 9-9 9-9-9Z"/>
+          </svg>
+          <span>Aether<span class="wordmark-fold">Fold</span></span>
+          <span class="brand-caption">A living instrument</span>
+        </a>
+        <div class="topbar-actions">
+          <div class="performance" aria-label="Frames per second"><span id="fps">—</span><span>fps</span></div>
+          <button id="mute-toggle" class="button button-quiet" type="button" aria-pressed="false" title="Toggle sound">Mute sound</button>
+          <button id="fullscreen-toggle" class="button button-icon" type="button" aria-label="Toggle fullscreen" title="Fullscreen">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace" aria-label="Live instrument">
+        <div class="stage-caption">
+          <span class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Live field</span>
+          <p id="stage-hint">Move to play. <em>Drag to bend.</em></p>
+          <p class="stage-subhint">One gesture, in light and sound.</p>
+        </div>
+
+        <details class="instrument-panel" open>
+          <summary class="panel-heading">
+            <span><span class="eyebrow">Make it yours</span><span class="panel-title">The instrument</span></span>
+            <span class="panel-toggle"><span class="when-open">Hide</span><span class="when-closed">Show</span><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></span>
+          </summary>
+          <div class="panel-content">
+            <div class="scene-controls">
+              <div class="field"><label for="preset">Atmosphere</label><select id="preset"><option value="cyber" selected>Prismatic dusk</option><option value="golden">Golden hour</option><option value="void">Velvet void</option></select></div>
+              <div class="field"><label for="quality">Render quality</label><select id="quality"><option value="low">Light</option><option value="balanced" selected>Balanced</option><option value="high">Fine detail</option></select></div>
+            </div>
+
+            <details class="control-section" open>
+              <summary><span class="section-number">01</span><span>Image &amp; connection</span><svg class="section-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary>
+              <div class="section-content">
+                <div class="preview-heading"><span class="eyebrow">Before / source</span><span id="image-name" class="image-name">Demo source</span></div>
+                <div class="source-frame">
+                  <canvas id="source-preview" width="560" height="340" tabindex="0" aria-label="Source image and connection anchor" aria-describedby="anchor-hint">Source image preview and mirror anchor.</canvas>
+                  <span class="preview-badge" aria-hidden="true">Find your join</span>
+                </div>
+                <p id="anchor-hint" class="hint connection-hint"><span class="hint-star" aria-hidden="true">✧</span><span>Pick a feature in the preview. This anchor is where the reflections meet; move it to connect a face, an eye, or an edge.</span></p>
+                <label class="upload-control" for="image-upload">
+                  <input id="image-upload" class="visually-hidden" type="file" accept="image/*" aria-describedby="image-privacy">
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 13V3m-4 4 4-4 4 4M3 12v5h14v-5"/></svg>
+                  <span>Choose your image</span><span class="upload-note">Browse</span>
+                </label>
+                <p id="image-privacy" class="microcopy">Your image is processed in this browser.</p>
+                <div class="field"><label for="sample-image">Or explore a sample</label><select id="sample-image"><option value="">Choose a sample image…</option></select></div>
+                <div class="range-field"><div class="range-label"><label for="zoom">Crop scale</label><output for="zoom" data-value="zoom">1.00×</output></div><input id="zoom" type="range" min="0.25" max="6" step="0.01" value="1" aria-describedby="zoom-hint"><p id="zoom-hint" class="microcopy">A closer crop brings the motif into the join.</p></div>
+                <div class="range-field"><div class="range-label"><label for="rotation">Layout rotation</label><output for="rotation" data-value="rotation">0°</output></div><input id="rotation" type="range" min="-180" max="180" step="1" value="0"></div>
+                <div class="range-field"><div class="range-label"><label for="background-removal">Background removal</label><output for="background-removal" data-value="background-removal">0%</output></div><input id="background-removal" type="range" min="0" max="1" step="0.01" value="0" aria-describedby="removal-hint"><p id="removal-hint" class="microcopy">Optional. Start low to preserve fine detail.</p></div>
+              </div>
+            </details>
+
+            <details class="control-section" open>
+              <summary><span class="section-number">02</span><span>Fold the space</span><svg class="section-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary>
+              <div class="section-content">
+                <div class="field"><label for="pattern">Symmetry</label><select id="pattern"><option value="mirror">Connected mirror</option><option value="square">Square lattice</option><option value="diamond">Diamond lattice</option><option value="triangle">Triangle prism</option><option value="radial" selected>Radial flower</option></select></div>
+                <div class="range-field"><div class="range-label"><label for="folds">Mirror folds</label><output for="folds" data-value="folds">6</output></div><input id="folds" type="range" min="2" max="32" step="1" value="6"></div>
+                <div class="range-field range-field-accent"><div class="range-label"><label for="morph">Geometry morph</label><output for="morph" data-value="morph">35%</output></div><input id="morph" type="range" min="0" max="1" step="0.01" value="0.35" aria-describedby="morph-hint"><div class="range-endpoints" aria-hidden="true"><span>Image</span><span>Spatial</span></div><p id="morph-hint" class="hint">Set morph to <strong>0</strong> for pure image composition and original colours. Raise it to introduce the 3D field.</p></div>
+                <div class="range-field"><div class="range-label"><label for="warp">Gesture warp</label><output for="warp" data-value="warp">50%</output></div><input id="warp" type="range" min="0" max="1" step="0.01" value="0.5" aria-describedby="warp-hint"><p id="warp-hint" class="microcopy">How strongly a drag or pinch bends the space.</p></div>
+                <div class="range-field"><div class="range-label"><label for="image-mix">Image on geometry (3D only)</label><output for="image-mix" data-value="image-mix">100%</output></div><input id="image-mix" type="range" min="0" max="1" step="0.01" value="1"></div>
+                <label class="checkbox-field" for="guides"><input id="guides" type="checkbox"><span>Show mirror seams<span class="microcopy">See where the reflections connect.</span></span></label>
+              </div>
+            </details>
+
+            <details class="control-section" open>
+              <summary><span class="section-number">03</span><span>Play the atmosphere</span><svg class="section-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary>
+              <div class="section-content">
+                <div class="sound-status"><span class="eyebrow">Sound</span><span id="audio-status" role="status" aria-live="polite">Not started</span></div>
+                <div class="field"><label for="tuning">Harmonic tuning</label><select id="tuning"><option value="just" selected>Just intonation</option><option value="pentatonic">Ambient pentatonic</option><option value="microtonal">Microtonal</option></select></div>
+                <div class="range-field"><div class="range-label"><label for="volume">Volume</label><output for="volume" data-value="volume">25%</output></div><input id="volume" type="range" min="0" max="0.8" step="0.01" value="0.25"></div>
+                <p class="hint">Move across the stage to shape the sound; move up and down to explore its register.</p>
+              </div>
+            </details>
+
+            <details class="control-section input-section" open>
+              <summary><span class="section-number">04</span><span>Your gesture</span><svg class="section-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary>
+              <div class="section-content">
+                <div class="input-status-row"><span class="status-dot" aria-hidden="true"></span><span id="input-status" role="status" aria-live="polite">Pointer ready</span></div>
+                <button id="camera-toggle" class="button button-secondary camera-button" type="button" aria-pressed="false" aria-describedby="camera-privacy">Enable hand tracking</button>
+                <p id="camera-privacy" class="microcopy">Camera stays off until you enable it. Tracking processes frames on your device. First use may download the hand-tracking model.</p>
+              </div>
+            </details>
+
+            <div class="scene-footer">
+              <div class="button-pair"><button id="pause-toggle" class="button button-secondary" type="button" aria-pressed="false">Pause motion</button><button id="reset-scene" class="button button-quiet" type="button">Reset scene</button></div>
+              <div class="scene-file-actions"><button id="save-scene" class="text-button" type="button">Save scene <span aria-hidden="true">↗</span></button><span class="action-divider" aria-hidden="true"></span><button id="load-scene" class="text-button" type="button">Load scene <span aria-hidden="true">↙</span></button></div>
+              <input id="scene-upload" type="file" accept=".json,application/json" hidden aria-label="Load a saved scene">
+              <p class="microcopy keyboard-hint"><kbd>Tab</kbd> to navigate · arrow keys adjust sliders</p>
+            </div>
+          </div>
+        </details>
+      </main>
+      <footer class="stage-footer"><span>Made of mathematics. <em>Moved by you.</em></span><span class="stage-index" aria-hidden="true">∞ / 01</span></footer>
+    </div>
+
+    <div id="launch-overlay" class="launch-overlay" role="dialog" aria-modal="true" aria-labelledby="launch-title" aria-describedby="launch-description">
+      <div class="launch-art" aria-hidden="true"><div class="aperture"><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="art-coordinate art-coordinate-top">REFLECT / REFRACT</span><span class="art-coordinate art-coordinate-bottom">A space between the familiar.</span></div>
+      <div class="launch-header"><span class="wordmark">Aether<span class="wordmark-fold">Fold</span></span><span class="eyebrow">An interactive visual instrument</span></div>
+      <div class="launch-content">
+        <p class="eyebrow launch-eyebrow"><span class="live-dot" aria-hidden="true"></span> Geometry you can feel</p>
+        <h1 id="launch-title">Shape the light.<br><em>Let it sing.</em></h1>
+        <p id="launch-description" class="launch-description">Move to play ambient harmonies. Drag to bend the geometry. Bring an image, and find the point where its reflections meet.</p>
+        <div class="launch-actions">
+          <button id="launch-sound" class="button button-primary" type="button"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 8v4m4-7v10m3-13v16m3-12v8m4-6v4"/></svg>Enter with sound<span aria-hidden="true">↗</span></button>
+          <button id="launch-silent" class="button button-launch-silent" type="button">Explore silently<span aria-hidden="true">→</span></button>
+        </div>
+        <p class="launch-privacy">Sound starts with your choice. Camera is always opt-in.</p>
+      </div>
+      <div class="launch-footer"><span>One gesture. Infinite reflections.</span><span>Pointer · Touch · Optional camera</span></div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
