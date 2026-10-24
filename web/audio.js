@@ -37,6 +37,36 @@ export const AUDIO_LIMITS = Object.freeze({
   maxMasterGain: 0.7,
 });
 
+export const MOBILE_AUDIO_PROFILE = Object.freeze({
+  maxVoices: 8,
+  impulseSeconds: 1.25,
+  wetGain: 0.36,
+  delaySend: 0.68,
+  reverbSend: 0.62,
+  maxFeedback: 0.46,
+});
+export const DESKTOP_AUDIO_PROFILE = Object.freeze({
+  maxVoices: AUDIO_LIMITS.maxVoices,
+  impulseSeconds: 2.6,
+  wetGain: 0.55,
+  delaySend: 1,
+  reverbSend: 1,
+  maxFeedback: AUDIO_LIMITS.maxFeedback,
+});
+
+/** Keep phone audio robust when the renderer and browser are under load. */
+export function audioProfile({ coarsePointer = false, width = Infinity } = {}) {
+  return coarsePointer && Number.isFinite(width) && width <= 680
+    ? MOBILE_AUDIO_PROFILE : DESKTOP_AUDIO_PROFILE;
+}
+
+function runtimeAudioProfile() {
+  return audioProfile({
+    coarsePointer: Boolean(globalThis.matchMedia?.('(pointer: coarse)')?.matches),
+    width: globalThis.innerWidth,
+  });
+}
+
 const DEFAULT_SETTINGS = Object.freeze({ preset: 'cyber', tuning: 'just', volume: 0.25, muted: false });
 const DEFAULT_INTERACTION = Object.freeze({ x: 0.5, y: 0.5, energy: 0, pinch: 0, depth: 0.5, active: false });
 const own = (table, name) => typeof name === 'string' && Object.hasOwn(table, name);
@@ -174,8 +204,9 @@ function envelopeAt(voice, time) {
 
 export class AudioEngine {
   // contextFactory is optional dependency injection for offline/lifecycle tests.
-  constructor({ contextFactory } = {}) {
+  constructor({ contextFactory, profile = runtimeAudioProfile() } = {}) {
     this._contextFactory = contextFactory;
+    this._profile = profile;
     this._context = null;
     this._nodes = new Set();
     this._voices = [];
@@ -264,8 +295,8 @@ export class AudioEngine {
     const echo = gain(0.38);
     const reverbSend = gain(0.25);
     const reverb = this._track(context.createConvolver());
-    reverb.buffer = createImpulseResponse(context);
-    const wet = gain(0.55);
+    reverb.buffer = createImpulseResponse(context, this._profile.impulseSeconds);
+    const wet = gain(this._profile.wetGain);
     const compressor = this._track(context.createDynamicsCompressor());
     compressor.threshold.value = -20;
     compressor.knee.value = 18;
@@ -343,10 +374,10 @@ export class AudioEngine {
     const modulation = mapInteraction(this._interaction, this._settings.preset);
     this._smooth(this.graph.filter.frequency, Math.min(modulation.cutoff, this._context.sampleRate * 0.45));
     this._smooth(this.graph.pan.pan, modulation.pan);
-    this._smooth(this.graph.delaySend.gain, modulation.delaySend);
-    this._smooth(this.graph.feedback.gain, modulation.feedback);
+    this._smooth(this.graph.delaySend.gain, modulation.delaySend * this._profile.delaySend);
+    this._smooth(this.graph.feedback.gain, Math.min(modulation.feedback, this._profile.maxFeedback));
     this._smooth(this.graph.delay.delayTime, preset.delay, 0.4);
-    this._smooth(this.graph.reverbSend.gain, modulation.reverb);
+    this._smooth(this.graph.reverbSend.gain, modulation.reverb * this._profile.reverbSend);
     for (const voice of this._voices) {
       if (!voice.released) this._smooth(voice.harmonic.gain, modulation.harmonic, 0.12);
     }
@@ -376,7 +407,7 @@ export class AudioEngine {
     const frequencies = chordFrequencies({ tuning: this._settings.tuning, rootHz: preset.rootHz, degree, register });
     // Count tails too. If still full, leave the event uncommitted and retry on
     // the next frame; never cut a sounding voice to make room for another.
-    if (this._voices.length + frequencies.length > AUDIO_LIMITS.maxVoices) return;
+    if (this._voices.length + frequencies.length > this._profile.maxVoices) return;
     for (const voice of this._voices) {
       if (!voice.released) this._releaseVoice(voice, event.time, preset.release);
     }

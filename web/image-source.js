@@ -1,6 +1,7 @@
 // Image coordinates are normalized, TOP LEFT. Source textures contain no padding.
 // Analysis estimates useful detail, not semantic subjects or guaranteed subject fusion.
 export const MAX_SOURCE_SIZE = 2048;
+export const MOBILE_SOURCE_SIZE = 1280;
 export const MIN_CROP_ZOOM = 0.25;
 export const MAX_CROP_ZOOM = 6;
 const MAX_FILE_BYTES = 32 * 1024 * 1024;
@@ -16,6 +17,23 @@ const smoothstep = (a, b, value) => {
   const t = clamp((value - a) / (b - a));
   return t * t * (3 - 2 * t);
 };
+
+/**
+ * Mobile browsers retain the decoded image, the original canvas, the editable
+ * canvas, analysis pixels, and a GPU texture at once. Keep enough source detail
+ * for a phone screen without exhausting that much smaller memory budget.
+ */
+export function sourceSizeLimit({ coarsePointer = false, shortEdge = Infinity } = {}) {
+  return coarsePointer && Number.isFinite(shortEdge) && shortEdge <= 680
+    ? MOBILE_SOURCE_SIZE : MAX_SOURCE_SIZE;
+}
+
+function runtimeSourceSizeLimit() {
+  const width = finite(globalThis.innerWidth, Infinity);
+  const height = finite(globalThis.innerHeight, Infinity);
+  const coarsePointer = Boolean(globalThis.matchMedia?.('(pointer: coarse)')?.matches);
+  return sourceSizeLimit({ coarsePointer, shortEdge: Math.min(width, height) });
+}
 
 export function boundedDimensions(width, height, limit = MAX_SOURCE_SIZE) {
   if (![width, height, limit].every(v => Number.isFinite(v) && v >= 1)) {
@@ -340,7 +358,7 @@ export async function createImageSource(fileOrURL) {
     if (width * height > 100000000 || Math.max(width, height) > 32768) {
       throw new Error('This image is too large to decode safely. Resize it below 100 megapixels first.');
     }
-    const size = boundedDimensions(width, height);
+    const size = boundedDimensions(width, height, runtimeSourceSizeLimit());
     const target = makeCanvas(size.width, size.height);
     original = target.canvas;
     target.context.imageSmoothingEnabled = true;

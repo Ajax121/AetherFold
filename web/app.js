@@ -281,7 +281,13 @@ document.addEventListener('keydown', (event) => {
   if (event.key.toLowerCase() === 'r') $('reset-scene').click();
 });
 
-await loadImage(DEFAULT_SOURCE, { scene });
+// A low-memory mobile browser can reject a large decoded sample or texture.
+// Always leave the instrument usable with the procedural, local starter rather
+// than opening to an empty stage.
+if (!await loadImage(DEFAULT_SOURCE, { scene })) {
+  toast('The default image could not load on this device. Using the local starter instead.');
+  await loadImage('demo', { scene });
+}
 let lastFrame = performance.now();
 let lastAnimationFrame = lastFrame;
 let frameBudget = 0;
