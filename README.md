@@ -59,6 +59,10 @@ motif, with its connection anchor and composition controls visible.*
 Sound and camera access are always opt-in. Uploaded images are decoded and
 processed in the browser; they are not sent to an AetherFold server.
 
+For the best experience, use a desktop or laptop with a recent browser. It has
+more room for the controls and more graphics and audio power for the live image
+and sound.
+
 ## Mobile preview
 
 <p align="center">
@@ -232,10 +236,11 @@ uv run python test_fold.py images
 
 ## Current limits
 
-- The app exports and imports scenes, not rendered PNGs, videos, or loops yet.
-- Image-anchor analysis is a helpful starting point, not semantic subject
-  recognition; placing the join manually produces the best compositions.
-- Hand tracking and musical feel benefit from testing on real camera and audio
-  hardware. The automated suite validates safe startup, fallbacks, and browser
-  integration, but cannot judge every device's latency or artistic output.
+- You can save and load scenes, but exporting finished images, videos, or loops
+  is not available yet.
+- The app can suggest a good starting point in an image, but it cannot always
+  tell what the main subject is. Move the anchor yourself for the best result.
+- Hand tracking and sound can feel different on each phone, camera, speaker, or
+  browser. The app is tested for reliable startup and fallbacks, but real-device
+  testing is still needed to fine-tune responsiveness and sound quality.
 
