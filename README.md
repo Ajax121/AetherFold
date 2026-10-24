@@ -59,9 +59,9 @@ motif, with its connection anchor and composition controls visible.*
 Sound and camera access are always opt-in. Uploaded images are decoded and
 processed in the browser; they are not sent to an AetherFold server.
 
-For the best experience, use a desktop or laptop with a recent browser. It has
+**_For the best experience, use a desktop or laptop with a recent browser. It has
 more room for the controls and more graphics and audio power for the live image
-and sound.
+and sound._**
 
 ## Mobile preview
 
@@ -156,10 +156,7 @@ docker run --rm -p 127.0.0.1:8080:8080 --read-only \
   --tmpfs /tmp:size=32m,mode=1777 aetherfold:local
 ```
 
-The image runs as a non-root user, exposes port `8080`, and provides a
-`/healthz` endpoint. The build context includes only the app's required source
-and image assets; `.env`, Git history, local environments and screenshots are
-excluded.
+The image runs as a non-root user, exposes port `8080`. The build context includes only the app's required source.
 
 Compose binds to localhost by default. To make the service reachable on a
 server's network interfaces, set `AETHERFOLD_BIND_HOST=0.0.0.0`. For public
@@ -202,31 +199,11 @@ The command prints a new `dist/site-*` directory containing the browser app,
 its selected sample images, and a `.nojekyll` file. Serve or publish that directory
 as a static site. Asset paths support hosting under a subdirectory.
 
-The build expects every sample referenced in `web/state.js` to be committed.
-Local scratch images can stay under `images/test_img/`; that folder is ignored
-and is not part of the public build.
-
-## Publish with GitHub Pages
-
-Push to `main` to run the included
-[GitHub Pages workflow](.github/workflows/pages.yml). It runs the Node test
-suite, builds the static bundle, and deploys it over HTTPS to
-[ajax121.github.io/AetherFold](https://ajax121.github.io/AetherFold/). This is
-the production path for the live app; no server process is needed.
 
 ## Development checks
 
-When the local development test suite is available:
-
-```bash
-npm test
-python3 -m unittest discover -s tests -p 'test_*.py'
-npm run test:browser
-```
-
 The browser check uses headless Chrome and saves the desktop and mobile
-screenshots in `artifacts/`. Set `CHROME_PATH` if Chrome is not at the default
-macOS location.
+screenshots in `artifacts/`.
 
 The earlier Python rendering experiment is still available separately:
 
