@@ -208,7 +208,7 @@ screenshots in `artifacts/`.
 The earlier Python rendering experiment is still available separately:
 
 ```bash
-uv run python test_fold.py images
+uv run python test_fold.py <image_path>
 ```
 
 ## Current limits
