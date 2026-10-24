@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 .DS_Store
 node_modules/
+dist/
 docs/
 tests/
 images/test_img/

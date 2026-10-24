@@ -164,9 +164,9 @@ The command prints a new `dist/site-*` directory containing the browser app,
 its selected sample images, and a `.nojekyll` file. Serve or publish that directory
 as a static site. Asset paths support hosting under a subdirectory.
 
-The build expects every sample referenced in `web/state.js`, including the
-photos in `images/test_img/`. That folder is currently gitignored; include those
-photos or update the sample list before building from a fresh GitHub clone.
+The build expects every sample referenced in `web/state.js` to be committed.
+Local scratch images can stay under `images/test_img/`; that folder is ignored
+and is not part of the public build.
 
 ## Development checks
 

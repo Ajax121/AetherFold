@@ -30,10 +30,6 @@ export const SAMPLE_IMAGES = [
   { name: 'Vision study 08', url: './images/il_765x956.5127148965_nd13.png' },
   { name: 'Vision study 09', url: './images/il_765x956.6114736989_npwx.png' },
   { name: 'Vision study 10', url: './images/il_765x956.8448243588_40k2.png' },
-  { name: 'Photo study 01', url: './images/test_img/images%20(2).jpeg' },
-  { name: 'Photo study 02', url: './images/test_img/images%20(8).jpeg' },
-  { name: 'Photo study 03', url: './images/test_img/images%20(9).jpeg' },
-  { name: 'Photo study 04', url: './images/test_img/images%20(10).jpeg' },
 ];
 
 export const DEFAULT_SOURCE = './images/il_1588xN.4864111991_td17.png';
