@@ -193,6 +193,7 @@ vec3 fieldNormal(vec3 p, vec2 hand) {
 }
 
 vec3 renderField(vec2 q, vec2 hand, vec2 dx, vec2 dy, vec3 flatColor) {
+    float activity = clamp(max(u_energy, u_pinch), 0.0, 1.0);
     vec3 origin = vec3(0.0, 0.0, -3.5 - (u_depth - 0.5) * 0.35 * u_warp);
     vec3 ray = normalize(vec3(q * 1.45, 1.65));
     float travel = 0.0;
@@ -216,15 +217,16 @@ vec3 renderField(vec2 q, vec2 hand, vec2 dx, vec2 dy, vec3 flatColor) {
         if (travel > 8.5) break;
     }
 
-    vec3 color = flatColor * 0.24;
+    vec3 color = flatColor * mix(0.72, 0.58, activity);
     if (hit) {
         vec3 shaped = bendSpace(position, hand);
         // Real surface position and depth determine parallax and texture
         // placement. This is not a flat image with a gyroid glow overlaid.
         vec2 surface = shaped.xy * 0.4;
         surface += vec2(sin(shaped.z * 0.7), cos(shaped.z * 0.6)) * 0.08;
-        vec2 uv = sourceUV(mix(q, surface, 0.72));
-        float footprint = max(0.7, travel * 0.65);
+        float parallax = mix(0.18, 0.58, activity);
+        vec2 uv = sourceUV(mix(q, surface, parallax));
+        float footprint = max(0.55, travel * mix(0.38, 0.62, activity));
         vec3 image = sourceColor(uv, dx * footprint, dy * footprint);
         vec3 normal = fieldNormal(position, hand);
         float diffuse = max(dot(normal, normalize(vec3(-0.4, -0.5, -1.0))), 0.0);
@@ -233,11 +235,12 @@ vec3 renderField(vec2 q, vec2 hand, vec2 dx, vec2 dy, vec3 flatColor) {
         vec3 material = mix(palette(shaped.z * 0.18 + u_time * 0.025), image, u_imageMix);
         color = material * (0.48 + 0.52 * diffuse);
         color += palette(travel * 0.12 + u_time * 0.035) * rim * 0.38 * (1.0 - u_imageMix);
-        color = mix(color, flatColor * 0.16, 1.0 - exp(-travel * 0.065));
+        color = mix(color, flatColor, mix(0.45, 0.26, activity) * u_imageMix);
+        color = mix(color, flatColor * 0.7, 1.0 - exp(-travel * 0.045));
     }
     // imageMix=1 disables palette glow; morph=0 bypasses all of this.
     color += palette(glow * 0.2 + u_time * 0.035) * (1.0 - exp(-glow * 0.8))
-        * (1.0 - u_imageMix) * 0.45;
+        * (1.0 - u_imageMix) * mix(0.24, 0.5, activity);
     return color;
 }
 
@@ -251,9 +254,14 @@ void main() {
     vec2 uv = sourceUV(q);
     // Compute gradients outside the variable raymarch/visibility branches.
     vec2 dx = dFdx(uv), dy = dFdy(uv);
+    // Keep the un-morphed composition pixel-faithful.  The editor, saved
+    // scenes, and visual probes all rely on morph=0 being the source image,
+    // not a "helpfully" colour-graded approximation of it.
     vec3 color = sourceColor(uv, dx, dy);
     if (u_morph > 0.0) {
-        color = mix(color, renderField(q, hand, dx, dy, color), u_morph);
+        float activity = clamp(max(u_energy, u_pinch), 0.0, 1.0);
+        float spatialMix = u_morph * mix(0.42, 0.95, activity);
+        color = mix(color, renderField(q, hand, dx, dy, color), spatialMix);
     }
     if (u_guides) {
         float width = 1.25 / u_resolution.y;
